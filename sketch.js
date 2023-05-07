@@ -1,48 +1,38 @@
-//Para usarlo primero debemos declarar un objeto Dir_y_Vel. Será uno por cada puntero que querramos seguir
-let miVelocidadYDireccion;
+let g;
 
 function setup() {
   createCanvas(innerWidth, innerHeight);
-  // Inicializo el objeto, no necesito pasarle parametros.
-  miVelocidadYDireccion = new Dir_y_Vel();
+  background(255);
+  g = new GestorDeInteracion();
 }
 
 function draw() {
-  background(frameCount, 0, 0);
-
-  //Lo priemero que deberia hacer es pasarle los parametros x e y que quiero calcular, en este caso el mouse
-  miVelocidadYDireccion.calcularTodo(mouseX, mouseY);
-
-
-
-  //Para usarlo, simplemente se le pregunta al objet por alguno de los valores. En la medida que los necesitemos
-
-  //miVelocidadYDireccion.velocidad();
-  //miVelocidadYDireccion.direccionX();
-  //miVelocidadYDireccion.direccionY();
-  //miVelocidadYDireccion.direccionPolar();
-
-  //Por ejemplo:
-  push();
-
-  var hue = miVelocidadYDireccion.direccionPolar();
-  var satYBright = miVelocidadYDireccion.velocidad() * 4;
-
-  colorMode(HSB);
-  var miColor = color(hue, satYBright, satYBright);
-  fill(miColor);
-
-  rect(0, 0, width, height);
-
-  pop();
-
-
-  //Esta es una funcion solo para ver en pantalla si esta funcionando todo ok
-  miVelocidadYDireccion.mostrarData();
+  g.actualizar();
+  if (g.movGrande) {
+    crearGrandes();
+  } else if (g.movPeque) {
+    crearPeque();
+  }
 }
-// fin del draw
 
-// lo relacionado al objeto en si mismo
+function crearGrandes() {
+  let t = random(150, 250);
+  noStroke();
+  fill(random(70), random(70), random(100));
+  ellipse(random(width), random(height), t, t);
+}
+
+function crearPeque() {
+  let t = random(5, 20);
+  noStroke();
+  if (mouseX < width/2.0) {
+    fill(random(200,255), 0, 0);
+  } else {
+    fill(0, 0, random(200,255));
+  }
+  ellipse(random(width), random(height), t, t);
+}
+
 class Dir_y_Vel {
 
   constructor() {
@@ -87,32 +77,43 @@ class Dir_y_Vel {
   direccionPolar() {
     return this.miDireccionPolar;
   }
+}
 
-
-  //////* ESTO ES PARA DEBBUGGEAR LO QUE SE ESTA VIENDO *///////
-
-  mostrarData() {
-    textSize(24);
-    fill(255);
-    text("Velocidad: " + this.vel, 50, 50);
-    text("Direccion X: " + this.miDireccionX, 50, 75);
-    text("Direccion Y: " + this.miDireccionY, 50, 100);
-    text("Direccion Polar: " + this.miDireccionPolar, 50, 125);
-
-
-    push();
-    noFill();
-    stroke(255);
-    strokeWeight(3);
-    translate(width / 2, height / 2);
-
-    ellipse(0, 0, 100, 100);
-    rotate(radians(this.miDireccionPolar));
-    line(0, 0, this.vel * 2, 0);
-
-
-    pop();
+class GestorDeInteracion {
+  constructor() {
+    this.mouse = new Dir_y_Vel();
+    this.movGrande = false;
+    this.movPeque = false;
+    this.tiempoGrande = 0;
+    this.tiempoPeque = 0;
   }
 
-  ///////////// FIN DE LA CLASE  ///////
+  actualizar() {
+    this.mouse.calcularTodo(mouseX, mouseY);
+    this.movGrande = false;
+    this.movPeque = false;
+    this.tiempoGrande--;
+    this.tiempoPeque--;
+    this.tiempoGrande = constrain(this.tiempoGrande, 0, 90);
+    this.tiempoPeque = constrain(this.tiempoPeque, 0, 90);
+    if (this.mouse.velocidad() > 10) {
+      let umbral = 50;
+      if (this.mouse.velocidad() > umbral) {
+        this.tiempoGrande += 10;
+        this.tiempoPeque -= 10; 
+      } else {
+        if (this.tiempoGrande < 10) {
+          this.tiempoPeque += 10;
+        }
+      }
+    }
+    
+    if (this.tiempoGrande > 55) {
+      this.movGrande = true;
+    } 
+    if (this.tiempoPeque > 55) {
+      this.movPeque = true;
+    }
+  }
 }
+
