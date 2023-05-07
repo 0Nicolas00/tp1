@@ -59,9 +59,6 @@ class Dir_y_Vel {
     this.vel = dist(this.posX, this.posY, this.prevPosX, this.prevPosY);
   }
 
-
-  //////* ESTOS SON LOS METODOS QUE DEVUELVEN ALGO *///////
-
   velocidad() {
     return this.vel;
   }
